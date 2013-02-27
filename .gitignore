@@ -3,3 +3,8 @@
 Gemfile.lock
 pkg/*
 spec/shopify_api.yml
+
+# Ignore all logfiles and tempfiles.
+/log/*.log
+/tmp
+/.idea

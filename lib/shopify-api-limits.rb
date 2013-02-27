@@ -8,6 +8,7 @@ module ShopifyAPI
     require 'shopify-api-limits/shopify_api/base'
     
     require 'shopify-api-limits/shopify_api/limits'
+    require 'shopify-api-limits/shopify_api/throttle'
     
     def self.included(klass)
       klass.send(:extend, ClassMethods)
