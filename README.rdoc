@@ -50,11 +50,8 @@ Now it's possible to access the <tt>HTTPResponse</tt> instance directly from <tt
   gem "shopify-api-limits"
 
 == Usage
-  count_shop = ShopifyAPI.credit_used :shop
-  limit_shop = ShopifyAPI.credit_limit :shop
-  
-  count_global = ShopifyAPI.credit_used :global
-  limit_global = ShopifyAPI.credit_limit :global
+  count_shop = ShopifyAPI.credit_used
+  limit_shop = ShopifyAPI.credit_limit
   
 Generally, you <b>shouldn't need</b> to use the methods above directly -- rather, they're used under-the-hood by the following helpful methods which don't require a scope (<tt>:shop/:global</tt>):  If the <b>:global</b> scope has fewer calls available than the <tt>:local</tt> scope, the methods will operate upon the <tt>:global</tt> scope; otherwise, values will be returned based upon the <tt>:shop</tt> scope.   
  
@@ -98,3 +95,16 @@ If you don't have enough API credits to perform the multiple requests to serve y
   rescue ShopifyAPI::Limits::Error
     puts "Uhoh...didn't have enough credits to do that.  Maybe you wanna' queue your task for a later date."
   end
+
+== Additional method for ensuring a call completes.
+Background workers will want to ensure that all of their calls are completed, even if that results in some delays in processing.
+To handle this a new method has been added that executes a block.
+
+  ShopifyAPI.throttle { shopifyObject.save! }
+
+Remember scoping issues also apply:
+
+  collection = nil
+  ShopifyAPI.throttle { collection = ShopifyAPI::CustomCollection.find(123) }
+
+The block will be retried up to 5 times, and will sleep for 60 seconds between retries. This allows for the full 5 minutes to pass before the limit is reset.
