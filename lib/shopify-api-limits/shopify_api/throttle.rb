@@ -12,6 +12,10 @@ module ShopifyAPI
             end
 
             yield
+        rescue ActiveResource::ResourceNotFound, ActiveResource::BadRequest, ActiveResource::UnauthorizedAccess,
+            ActiveResource::ForbiddenAccess, ActiveResource::MethodNotAllowed, ActiveResource::ResourceGone,
+            ActiveResource::ResourceConflict, ActiveResource::ResourceInvalid => ex
+          raise ex
         rescue ActiveResource::ConnectionError, ActiveResource::ServerError,
             ActiveResource::ClientError => ex
           unless retried > THROTTLE_RETRY_MAX
