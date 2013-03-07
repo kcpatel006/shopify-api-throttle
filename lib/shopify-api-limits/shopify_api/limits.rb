@@ -4,7 +4,7 @@ module ShopifyAPI
 
       # Takes form num_requests_executed/max_requests
       # Eg: 101/3000
-      CREDIT_LIMIT_HEADER_PARAM = 'http_x_shopify_shop_api_call_limit'
+      SHOPIFY_CREDIT_LIMIT_HEADER_PARAM = 'http_x_shopify_shop_api_call_limit'
 
       RETRY_AFTER_HEADER = 'retry-after'
 
@@ -56,7 +56,7 @@ module ShopifyAPI
         begin
           Shop.current unless Base.connection.response
         rescue ActiveResource::ClientError
-          return { CREDIT_LIMIT_HEADER_PARAM => '0/500', RETRY_AFTER_HEADER => RETRY_AFTER }
+          return { SHOPIFY_CREDIT_LIMIT_HEADER_PARAM => '0/500', RETRY_AFTER_HEADER => RETRY_AFTER }
         end
         Base.connection.response
       end
@@ -76,7 +76,7 @@ module ShopifyAPI
       # @return {Array}
       #
       def api_credit_limit_param
-        response[CREDIT_LIMIT_HEADER_PARAM].split('/')
+        response[SHOPIFY_CREDIT_LIMIT_HEADER_PARAM].split('/')
       end
     end
   end
