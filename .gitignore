@@ -8,3 +8,5 @@ spec/shopify_api.yml
 /log/*.log
 /tmp
 /.idea
+
+projectFilesBackup/.idea/shopify-api-limits.iml

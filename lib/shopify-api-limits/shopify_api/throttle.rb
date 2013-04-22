@@ -19,7 +19,7 @@ module ShopifyAPI
         rescue ActiveResource::ConnectionError, ActiveResource::ServerError,
             ActiveResource::ClientError => ex
           unless retried > THROTTLE_RETRY_MAX
-            sleep(((ex.respond_to?(:response) && ex.response['Retry-After']) || THROTTLE_RETRY_AFTER).to_i)
+            sleep(((ex.respond_to?(:response) && ex.response && ex.response['Retry-After']) || THROTTLE_RETRY_AFTER).to_i)
             retried += 1
             retry
           else
