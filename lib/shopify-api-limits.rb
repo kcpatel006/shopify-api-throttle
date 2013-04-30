@@ -4,7 +4,6 @@ module ShopifyAPI
   module Limits
     # Connection hack
     require 'shopify_api'
-    require 'shopify-api-limits/active_resource/connection'
     require 'shopify-api-limits/shopify_api/base'
     
     require 'shopify-api-limits/shopify_api/limits'

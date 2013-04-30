@@ -1,14 +1,15 @@
 module ShopifyAPI
   module Limits
     module ClassMethods
-      THROTTLE_RETRY_AFTER = 60
-      THROTTLE_RETRY_MAX = 5
+      THROTTLE_RETRY_AFTER = 10
+      THROTTLE_RETRY_MAX = 30
 
       def throttle(&block)
         retried = 0
         begin
-            if ShopifyAPI.credit_maxed?
-              sleep ShopifyAPI.retry_after
+            if ShopifyAPI.credit_below?(50)
+              puts "Credit Maxed: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{THROTTLE_RETRY_AFTER} (#{ShopifyAPI.retry_after}) seconds"
+              sleep THROTTLE_RETRY_AFTER
             end
 
             yield
@@ -19,7 +20,9 @@ module ShopifyAPI
         rescue ActiveResource::ConnectionError, ActiveResource::ServerError,
             ActiveResource::ClientError => ex
           unless retried > THROTTLE_RETRY_MAX
-            sleep(((ex.respond_to?(:response) && ex.response && ex.response['Retry-After']) || THROTTLE_RETRY_AFTER).to_i)
+            retry_after = ((ex.respond_to?(:response) && ex.response && ex.response['Retry-After']) || THROTTLE_RETRY_AFTER).to_i
+            puts "Throttle Retry: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{retry_after} seconds"
+            sleep retry_after
             retried += 1
             retry
           else
