@@ -18,7 +18,7 @@ module ShopifyAPI
             ActiveResource::ResourceConflict, ActiveResource::ResourceInvalid => ex
           raise ex
         rescue ActiveResource::ConnectionError, ActiveResource::ServerError,
-            ActiveResource::ClientError => ex
+            ActiveResource::ClientError, Timeout::Error => ex
           unless retried > THROTTLE_RETRY_MAX
             retry_after = ((ex.respond_to?(:response) && ex.response && ex.response['Retry-After']) || THROTTLE_RETRY_AFTER).to_i
             puts "Throttle Retry: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{retry_after} seconds"
