@@ -28,6 +28,15 @@ module ShopifyAPI
           else
             raise ex
           end
+        rescue => ex
+          if ex.message =~ /Connection timed out/
+            sleep THROTTLE_RETRY_AFTER
+            retried += 1
+            retry
+          else
+            puts "Exception Raised: #{ex.class}"
+            raise ex
+          end
         end
       end
     end
