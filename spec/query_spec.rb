@@ -13,11 +13,11 @@ describe "Query" do
     (rs.length == 1).should be_true
   end
   
-  it "Can aggregate result set by using :limit => false" do
-    rs = ShopifyAPI.throttle { ShopifyAPI::Product.all(:params => {:limit => false}) }
-    puts "len: #{rs.length}"
-    (rs.length == ShopifyAPI.throttle { ShopifyAPI::Product.count }).should be_true
-  end
+  #it "Can aggregate result set by using :limit => false" do
+  #  rs = ShopifyAPI.throttle { ShopifyAPI::Product.all(:params => {:limit => false}) }
+  #  puts "len: #{rs.length}"
+  #  (rs.length == ShopifyAPI.throttle { ShopifyAPI::Product.count }).should be_true
+  #end
     
   
 end

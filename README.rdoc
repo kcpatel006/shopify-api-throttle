@@ -1,102 +1,21 @@
-= shopify-api-limits
+= shopify-api-throttle
 
-My friend Dave (aka "hunkybill") posted a problem to me one day about ShopifyAPI call limits, offering a case of beer if I could find a solution:
-http://forums.shopify.com/categories/9/posts/49003
-
-So in the HTTP headers, the <tt>ShopifyAPI</tt> will return to you in each API request how many calls you've made, as well as the maximum number of calls available.
+This is a gem for dealing with the API limits placed on the Shopify API.
 
 == Problem
-<tt>ActiveResource</tt> does not make it easy to read the HTTP response headers, since the method <tt>#request</tt> in <tt>ActiveResource::Connection</tt> does not save a reference to the HTTP response:
-  
-  # Makes a request to the remote service.
-  def request(method, path, *arguments)
-    result = ActiveSupport::Notifications.instrument("request.active_resource") do |payload|
-      payload[:method]      = method
-      payload[:request_uri] = "#{site.scheme}://#{site.host}:#{site.port}#{path}"
-      payload[:result]      = http.send(method, path, *arguments)
-    end
-    handle_response(result) # <-- right here:  handle_response returns an instance of HTTPResponse but doesn't save a ref to it!
-  rescue Timeout::Error => e
-    raise TimeoutError.new(e.message)
-  rescue OpenSSL::SSL::SSLError => e
-    raise SSLError.new(e.message)
-  end
+
+Currently Shopify only allows 500 calls per 5 minutes when using the API, if you go over that limit it will throw an exception.
   
 == Solution
-Hack <tt>ActiveResource::Connection</tt> to introduce a new <tt>attr_reader :response</tt> and capture the returned instance of <tt>HTTPResponse</tt> provided by <tt>net/http</tt> from the <tt>#handle_response</tt> method.
-  
-  module ActiveResource
-    class Connection
-      # HACK:  Add an attr_reader for response
-      attr_reader :response
 
-      # capture the original #handle_response as an unbound method instead of using alias 
-      handle_response = self.instance_method(:handle_response)
-
-      # re-implement #handle_response to capture the returned HTTPResponse to an instance var.    
-      define_method(:handle_response) do |response| 
-        @response = handle_response.bind(self).call(response)
-      end 
-    end
-  end
-  
-  
-Now it's possible to access the <tt>HTTPResponse</tt> instance directly from <tt>ActiveResource</tt>, via:
-  foo = ActiveResource::Base.connection.response['http-header-param-foo']
-  
+By wrapping all the calls in a throttling method it is possible to wait until the API limit is reset or retry failing calls.
   
 == Installation
   gem "shopify_api"
-  gem "shopify-api-limits"
+  gem "shopify-api-throttle"
 
 == Usage
-  count_shop = ShopifyAPI.credit_used
-  limit_shop = ShopifyAPI.credit_limit
-  
-Generally, you <b>shouldn't need</b> to use the methods above directly -- rather, they're used under-the-hood by the following helpful methods which don't require a scope (<tt>:shop/:global</tt>):  If the <b>:global</b> scope has fewer calls available than the <tt>:local</tt> scope, the methods will operate upon the <tt>:global</tt> scope; otherwise, values will be returned based upon the <tt>:shop</tt> scope.   
- 
-  unless ShopifyAPI.credit_maxed?
-    #make a ShopifyAPI call
-  end
-  
-  until ShopifyAPI.credit_maxed? || stop_condition
-    # make some ShopifyAPI calls
-  end
-  
-  while ShopifyAPI.credit_left || stop_condition
-    # make some ShopifyAPI calls
-  end  
 
-== A special bonus for retrieving large recordsets > 250 records
-Shopify places a hard limit of <tt>250</tt> on the number of records returned in a single request.  There are ways around this, including one listed here 
-http://bit.ly/kgwCRc which involves manually calculating the total & number of pages then iterating to make several API calls.  This gem encapsulates this behaviour allowing you to make what <i>feels</i> like a single call to the <tt>ShopifyAPI</tt>.  Simply set <tt>:params => {:limit => false}</tt>.  False as in, "no limit"
-
-For example, imagine a store which has <b>251</b> orders and you want to fetch them all.  Since the maximum number of records returned in a single request is <tt>250</tt>, 2 requests must be made to the API in order to fetch all <tt>251</tt> records.
-
-  records = ShopifyAPI::Order.all(:params => {:limit => false})
-  puts records.count
-  => 251
-
-Without <tt>{:limit => false}</tt>, the normal behaviour will operate (ie: just one request with 250 records returned):
-
-  records = ShopifyAPI::Order.all(:params => {:limit => 250})
-  puts records.count
-  => 250
-
-If you don't have enough API credits to perform the multiple requests to serve your desired recordset, a <tt>ShopifyAPI::Limits::Error</tt> will be raised:
-  puts ShopifyAPI::Order.count
-  => 251
-  
-  puts ShopifyAPI.credit_left
-  => 1
-  
-  begin
-    rs = ShopifyAPI::Order.all(:params => {:limit => false})
-  rescue ShopifyAPI::Limits::Error
-    puts "Uhoh...didn't have enough credits to do that.  Maybe you wanna' queue your task for a later date."
-  end
-
-== Additional method for ensuring a call completes.
 Background workers will want to ensure that all of their calls are completed, even if that results in some delays in processing.
 To handle this a new method has been added that executes a block.
 
@@ -107,4 +26,8 @@ Remember scoping issues also apply:
   collection = nil
   ShopifyAPI.throttle { collection = ShopifyAPI::CustomCollection.find(123) }
 
-The block will be retried up to 5 times, and will sleep for 60 seconds between retries. This allows for the full 5 minutes to pass before the limit is reset.
+Or much easier
+
+   collection = ShopifyAPI.throttle { ShopifyAPI::CustomCollection.find(123) }
+
+The block will be retried up to a number times, and will sleep for an increasing number of seconds between retries. This allows for the full 5 minutes to pass before the limit is reset.

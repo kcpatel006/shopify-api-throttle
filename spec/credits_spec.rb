@@ -1,7 +1,7 @@
 
 require './spec/boot'
 
-describe "Limits" do
+describe "Throttle" do
   it "Can fetch local limits" do
     count = ShopifyAPI.credit_used
     limit = ShopifyAPI.credit_limit

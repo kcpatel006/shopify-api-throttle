@@ -1,5 +1,5 @@
 module ShopifyAPI
-  module Limits    
+  module Throttle
     module ClassMethods
 
       RETRY_AFTER_HEADER = 'retry-after'

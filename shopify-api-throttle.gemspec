@@ -1,18 +1,18 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "shopify-api-limits/version"
+require "shopify-api-throttle/version"
 
 Gem::Specification.new do |s|
-  s.name        = "shopify-api-limits"
-  s.version     = ShopifyAPI::Limits::VERSION
+  s.name        = "shopify-api-throttle"
+  s.version     = ShopifyAPI::Throttle::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Chris Scott"]
-  s.email       = ["christocracy@gmail.com"]
+  s.authors     = ["Brad Rees"]
+  s.email       = ["brad@shopifypowertools.com"]
   s.homepage    = ""
-  s.summary     = %q{This gem adds the ability to read shopify API call limits to the ShopifyAPI gem}
-  s.description = %q{This gem adds the ability to read shopify API call limits to the ShopifyAPI gem}
+  s.summary     = %q{This gem throttles API calls to keep within the limits of the ShopifyAPI gem}
+  s.description = %q{This gem throttles API calls to keep within the limits of the ShopifyAPI gem}
 
-  #s.rubyforge_project = "shopify-api-limits"
+  #s.rubyforge_project = "shopify-api-throttle"
   
   s.add_dependency "shopify_api", ">= 1.2.2"
   s.add_development_dependency "rspec", ">=2.6.0"

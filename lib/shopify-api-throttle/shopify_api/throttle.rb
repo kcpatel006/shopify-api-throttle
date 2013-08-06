@@ -1,15 +1,17 @@
 module ShopifyAPI
-  module Limits
+  module Throttle
     module ClassMethods
       THROTTLE_RETRY_AFTER = 10
       THROTTLE_RETRY_MAX = 30
+      THROTTLE_MIN_CREDIT = 30
 
       def throttle(&block)
         retried = 0
         begin
-            if ShopifyAPI.credit_below?(50)
-              puts "Credit Maxed: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{THROTTLE_RETRY_AFTER} (#{ShopifyAPI.retry_after}) seconds"
-              sleep THROTTLE_RETRY_AFTER
+            if ShopifyAPI.credit_below?(THROTTLE_MIN_CREDIT)
+              sleep_for = THROTTLE_MIN_CREDIT - ShopifyAPI.credit_left
+              puts "Credit Maxed: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{sleep_for} seconds"
+              sleep sleep_for
             end
 
             yield
