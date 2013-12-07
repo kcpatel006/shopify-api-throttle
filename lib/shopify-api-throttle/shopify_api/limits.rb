@@ -23,7 +23,7 @@ module ShopifyAPI
         begin
           Shop.current unless Base.connection.response
         rescue ActiveResource::ClientError
-          return { CREDIT_LIMIT_HEADER_PARAM => '0/500', RETRY_AFTER_HEADER => RETRY_AFTER }
+          return { CREDIT_LIMIT_HEADER_PARAM => '0/40', RETRY_AFTER_HEADER => RETRY_AFTER }
         end
         Base.connection.response
       end

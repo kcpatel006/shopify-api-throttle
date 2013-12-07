@@ -3,7 +3,7 @@ module ShopifyAPI
     module ClassMethods
       THROTTLE_RETRY_AFTER = 10
       THROTTLE_RETRY_MAX = 30
-      THROTTLE_MIN_CREDIT = 30
+      THROTTLE_MIN_CREDIT = 10
 
       def throttle(&block)
         retried = 0
