@@ -12,6 +12,10 @@ module ShopifyAPI
               sleep_for = THROTTLE_MIN_CREDIT - ShopifyAPI.credit_left
               puts "Credit Maxed: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{sleep_for} seconds"
               sleep sleep_for
+
+              if $shopify_store and $shopify_store.respond_to? :on_throttled # Use this to call back into your application to update something
+                $shopify_store.on_throttled
+              end
             end
 
             yield
