@@ -35,7 +35,7 @@ module ShopifyAPI
             ActiveResource::ForbiddenAccess, ActiveResource::MethodNotAllowed, ActiveResource::ResourceGone,
             ActiveResource::ResourceConflict, ActiveResource::ResourceInvalid => ex
           raise ex
-        rescue ActiveResource::ConnectionError, ActiveResource::ServerError,
+        rescue ActiveResource::ConnectionError, ActiveResource::ServerError,ShopifyAPI::Limits::LimitUnavailable,
             ActiveResource::ClientError, Timeout::Error, OpenSSL::SSL::SSLError => ex
           unless retried > THROTTLE_RETRY_MAX
             retry_after = ((ex.respond_to?(:response) && ex.response && ex.response['Retry-After']) || THROTTLE_RETRY_AFTER).to_i
