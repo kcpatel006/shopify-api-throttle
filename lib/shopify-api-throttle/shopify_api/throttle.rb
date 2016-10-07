@@ -8,8 +8,20 @@ module ShopifyAPI
       def throttle(&block)
         retried = 0
         begin
-            if ShopifyAPI.credit_below?(THROTTLE_MIN_CREDIT)
-              sleep_for = THROTTLE_MIN_CREDIT - ShopifyAPI.credit_left
+            begin
+              below = ShopifyAPI.credit_below?(THROTTLE_MIN_CREDIT)
+            rescue #credit_below can throw an exception. If it happens, assuming we are below credit
+              below = true
+              puts "Exception at  ShopifyAPI.credit_below? Continuing"
+            end
+            if below
+              begin
+                credit_left = ShopifyAPI.credit_left
+              rescue
+                puts "Exception at  ShopifyAPI.credit_left Continuing" 
+                credit_left = 0               
+              end
+              sleep_for = THROTTLE_MIN_CREDIT - credit_left
               puts "Credit Maxed: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{sleep_for} seconds"
               sleep sleep_for
 
