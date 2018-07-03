@@ -4,7 +4,7 @@ This is a gem for dealing with the API limits placed on the Shopify API.
 
 == Problem
 
-Currently Shopify only allows 500 calls per 5 minutes when using the API, if you go over that limit it will throw an exception.
+Currently Shopify a leaky bucket limiter when using the API, if you go over that limit it will throw an exception.
   
 == Solution
 
@@ -30,4 +30,4 @@ Or much easier
 
    collection = ShopifyAPI.throttle { ShopifyAPI::CustomCollection.find(123) }
 
-The block will be retried up to a number times, and will sleep for an increasing number of seconds between retries. This allows for the full 5 minutes to pass before the limit is reset.
+The block will be retried up to a number times, and will sleep for an increasing number of seconds between retries.
