@@ -43,6 +43,8 @@ module ShopifyAPI
             puts "Throttle Retry: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{retry_after} seconds. retried #{retried}"
             sleep retry_after
             retried += 1
+            ShopifyAPI::Base.api_version = "2019-10"
+            
             retry
           else
             raise ex
