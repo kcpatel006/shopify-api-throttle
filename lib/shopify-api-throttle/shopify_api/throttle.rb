@@ -7,7 +7,7 @@ module ShopifyAPI
 
       def throttle(&block)
         retried = 0
-        ShopifyAPI::Base.api_version = "2019-10"
+        ShopifyAPI::Base.api_version = "2021-07"
         begin
             begin
               below = ShopifyAPI.credit_below?(THROTTLE_MIN_CREDIT)
