@@ -7,7 +7,7 @@ module ShopifyAPI
 
       def throttle(&block)
         retried = 0
-        ShopifyAPI::Base.api_version = "2019-10"
+        ShopifyAPI::Base.api_version = "2022-07"
         begin
             begin
               below = ShopifyAPI.credit_below?(THROTTLE_MIN_CREDIT)
@@ -43,7 +43,7 @@ module ShopifyAPI
             puts "Throttle Retry: #{ShopifyAPI.credit_left}/#{ShopifyAPI.credit_limit}, sleeping for #{retry_after} seconds. retried #{retried}"
             sleep retry_after
             retried += 1
-            ShopifyAPI::Base.api_version = "2019-10"
+            ShopifyAPI::Base.api_version = "2022-07"
             
             retry
           else

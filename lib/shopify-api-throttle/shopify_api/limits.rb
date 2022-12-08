@@ -21,7 +21,7 @@ module ShopifyAPI
       #
       def response
         begin
-          ShopifyAPI::Base.api_version = "2019-10"
+          ShopifyAPI::Base.api_version = "2022-07"
           Shop.current unless Base.connection.response
         rescue ActiveResource::ClientError
           return { CREDIT_LIMIT_HEADER_PARAM => '0/40', RETRY_AFTER_HEADER => RETRY_AFTER }
